@@ -2,28 +2,33 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Backend: Supabase
 
-Initiatives, tasks, saved meetings and task images are stored in Supabase.
-Each browser signs in anonymously, and Row Level Security limits every user to their own data.
+Initiatives, tasks, saved meetings, settings and task images are stored in Supabase.
+Users sign in with email and password, and Row Level Security limits every user to their own data.
 
 One-time setup:
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In **SQL Editor**, run the whole file `supabase/migrations/20260924000000_init.sql`.
-   It creates the tables, the security policies, the `save_meeting` function and the private `task-images` storage bucket.
-3. In **Authentication > Sign In / Providers**, turn on **Allow anonymous sign-ins**.
+2. In **SQL Editor**, run each file in `supabase/migrations/` in order.
+   They create the tables, the security policies, the `save_meeting` function and the private `task-images` storage bucket.
+3. In **Authentication > URL Configuration**, set **Site URL** to the deployed URL and add `http://localhost:3000` to **Redirect URLs**.
+   Confirmation and password-reset emails link back there.
 4. Copy `.env.example` to `.env.local` and fill in the project URL and publishable key from **Project Settings > API**.
 5. Restart `npm run dev`.
+
+Supabase's built-in email service only sends a few emails per hour, and only to members of the project team.
+For other users, configure custom SMTP or turn off **Confirm email** in **Authentication > Sign In / Providers > Email**.
+
+Data from the earlier anonymous mode can be moved into an email account with `supabase/scripts/claim_anonymous_data.sql`.
 
 Data model:
 
 | Table | Purpose |
 | --- | --- |
 | `initiatives` | Name and color. Three defaults are created on the first visit. |
-| `meetings` | Saved meetings with their title. |
+| `meetings` | Saved meetings with their title and priority: alta, media or baja. |
+| `user_settings` | Reminder interval in minutes, per user. |
 | `tasks` | Notes. `meeting_id` is empty while the meeting is in progress. Saving a meeting moves them into it. |
 | `task-images` bucket | One folder per user. Images are shown through temporary signed URLs. |
-
-Anonymous sessions live in the browser. Clearing site data or switching browsers starts a new, empty account.
 
 ## Getting Started
 
